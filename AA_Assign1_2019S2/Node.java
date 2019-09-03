@@ -1,5 +1,6 @@
 class Node{
     private String data;
+    private Node parent;
     private Node left;
     private Node right;
 
@@ -18,6 +19,8 @@ class Node{
         left = n;
     }
 
+    public void setParent(Node n) {parent = n;}
+
     public Node getRightChild(){
         return right;
     }
@@ -26,7 +29,9 @@ class Node{
         return left;
     }
 
-    public int getData(){
+    public Node getParent() {return parent;}
+
+    public String getData(){
         return data;
     }
 
