@@ -1,4 +1,5 @@
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 
 /**
@@ -46,19 +47,25 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
         //TODO: Implement dynamic array
         boolean found = false;
         //Look through tree until srcLabel is found
-        for (int k = 0; k < tree.length && !found; i++) {
+        for (int k = 0; k < tree.length && !found; k++) {
 
-            if (tree[k].equals(srcLabel)) {
-                found = true;
+            if (tree[k] != null) {
+                if (tree[k].equals(srcLabel)) {
+                    found = true;
 
-                //If the node is not already split
-                if (tree[2*k] == null) {
-                    //Set split values
-                    tree[2*k] = leftChild;
-                    tree[2*k + 1] = rightChild;
+                    if (tree.length < 2*k+1) {
+                        increaseArrayLength(2*k+1);
+
+                        //If the node is not already split
+                        if (tree[2*k] == null) {
+                            //Set split values
+                            tree[2*k] = leftChild;
+                            tree[2*k + 1] = rightChild;
+                        }
+                        else
+                            System.err.println("ERROR: Node already split!"); 
+                    }           
                 }
-                else
-                    System.err.println("ERROR: Node already split!");            
             }
         }
 
@@ -75,9 +82,11 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
         //Look through tree until srcLabel is found
         for (int i = 0; i < tree.length && !found; i++) {
 
-            if (tree[i].equals(nodeLabel)) {
-                found = true;
-            }
+            if (tree[i] != null) {
+                if (tree[i].equals(nodeLabel)) {
+                    found = true;
+                }
+            }            
         }
 
         return found;
@@ -91,17 +100,21 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
         T parent = null;
 
         //Look through tree until node is found
-        for (int k = 0; k < tree.length && !found; i++) {
+        for (int k = 0; k < tree.length && !found; k++) {
 
-            if (tree[k].equals(nodeLabel)) {
-                found = true;
-                
-                //If the child is on the right, move the index to get parent evenly
-                if (!isLeftChild(k)) {
-                    k -= 1;
+            if (tree[k] != null) {
+                if (tree[k].equals(nodeLabel)) {
+                    found = true;
+                    
+                    //If the child is on the right, move the index to get parent evenly
+                    if (!isLeftChild(k)) {
+                        k -= 1;
+                    }
+
+                    if (k/2 > 0) {
+                        parent = tree[k / 2];
+                    }
                 }
-
-                parent = tree[k / 2];
             }
         }
 
@@ -124,17 +137,19 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
         T rightChild = null;
 
         //Look through tree until node is found
-        for (int k = 0; k < tree.length && !found; i++) {
+        for (int k = 0; k < tree.length && !found; k++) {
 
-            if (tree[k].equals(nodeLabel)) {
-                found = true;
+            if (tree[k] != null) {
+                if (tree[k].equals(nodeLabel)) {
+                    found = true;
 
-                //There may be children if the tree extends far enough
-                if (tree.length > 2*k) {
-                    //If nodes exist at the children positions set the children
-                    if (tree[2*k] != null) {
-                        leftChild = tree[2*k];
-                        rightChild = tree[2*k + 1];
+                    //There may be children if the tree extends far enough
+                    if (tree.length > 2*k) {
+                        //If nodes exist at the children positions set the children
+                        if (tree[2*k] != null) {
+                            leftChild = tree[2*k];
+                            rightChild = tree[2*k + 1];
+                        }
                     }
                 }
             }
@@ -153,48 +168,78 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
     @Override
     public void printInPreorder(PrintWriter writer) {
         // Implement me!
-        printInPreorder(writer, tree[1]);
+        printInPreorder(writer, 1);
+        writer.println();
 
     } // end of printInPreorder
 
-    //Recursive preorder traversal
-    private void printInPreorder(PrintWriter writer, T node) {
-        if (node != null) {
-            writer.print(node.toString() + " ");
-            printInPreorder(writer, getLeftChild(node));
-            printInPreorder(writer, getRightChild(node));
+    /**
+     * Recursive function for preorder traversal
+     * 
+     * @param writer : for output of values
+     * @param index : index of node in tree array
+     */
+    private void printInPreorder(PrintWriter writer, int index) {
+        if (index < tree.length) {
+            if (tree[index] != null) {
+                writer.printf("%s ", tree[index].toString());
+                printInPreorder(writer, 2*index);
+                printInPreorder(writer, 2*index+1);
+            }
         }
     }
 
     @Override
     public void printInInorder(PrintWriter writer) {
         // Implement me!
-        printInInorder(writer, tree[1]);
+        printInInorder(writer, 1);
+        writer.println();
     } // end of printInInorder
 
-    private void printInInorder(PrintWriter writer, T node) {
-        if (node != null) {
-            printInInorder(writer, getLeftChild(node));
-            writer.print(node.toString() + " ");
-            printInInorder(writer, getRightChild(node));
+    /**
+     * Recursive function for inorder traversal
+     * 
+     * @param writer : for output of values
+     * @param index : index of node in tree array
+     */
+    private void printInInorder(PrintWriter writer, int index) {
+        if (index < tree.length) {
+            if (tree[index] != null) {
+                printInInorder(writer, 2*index);
+                writer.printf("%s ", tree[index].toString());
+                printInInorder(writer, 2*index+1);
+            }
         }
     }
 
     @Override
     public void printInPostorder(PrintWriter writer) {
         // Implement me!
-        printInPostorder(writer, tree[1]);
+        printInPostorder(writer, 1);
+        writer.println();
     } // end of printInPostorder
 
-    private void printInPostorder(PrintWriter writer, T node) {
-        if (node != null) {
-            printInPostorder(writer, getLeftChild(node));
-            printInPostorder(writer, getRightChild(node));
-            writer.print(node.toString() + " ");            
+    /**
+     * Recursive function for postorder traversal
+     * 
+     * @param writer : for output of values
+     * @param index : index of node in tree array
+     */
+    private void printInPostorder(PrintWriter writer, int index) {
+        if (index < tree.length) {
+            if (tree[index] != null) {
+                printInPostorder(writer, 2*index);
+                printInPostorder(writer, 2*index+1);
+                writer.printf("%s ", tree[index].toString());            
+            }
         }
     }
 
-    private T getLeftChild(T parentNode) {
+    private void increaseArrayLength(int newSize) {
+        tree =  Arrays.copyOf(tree, newSize + 1);
+    }
+
+    /*private T getLeftChild(T parentNode) {
 
         boolean found = false;
         T leftChild = null;
@@ -209,9 +254,9 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
 
         return leftChild;
 
-    }
+    }*/
 
-    private T getRightChild(T parentNode) {
+    /*private T getRightChild(T parentNode) {
 
         boolean found = false;
         T rightChild = null;
@@ -226,7 +271,7 @@ public class SequentialRepresentation<T> implements BSPTree<T> {
 
         return rightChild;
 
-    }
+    }*/
 
     private boolean isLeftChild(int childIndex) {
         boolean isLeft;
